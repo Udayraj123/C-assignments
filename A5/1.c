@@ -57,7 +57,7 @@ void makeEdge(nd * Node,int id){
 	adjNode * adjHead1 = Node->adjHead;
 	if(adjHead1==NULL){
 		adjHead1 = (adjNode*)malloc(sizeof(adjNode)); // make new adjNode at end
-		adjHead1 -> id = id; 
+		adjHead1 -> id = id;
 		adjHead1 -> next =NULL; //set last one to NULL
 		Node->adjHead=adjHead1;
 	}
@@ -65,7 +65,7 @@ void makeEdge(nd * Node,int id){
 		while(adjHead1->next !=NULL)adjHead1 = adjHead1 -> next; //traverse to last id
 		adjHead1 -> next = (adjNode*)malloc(sizeof(adjNode)); // make new adjNode at end
 		adjHead1 = adjHead1 -> next;
-		adjHead1 -> id = id; 
+		adjHead1 -> id = id;
 		adjHead1 -> next =NULL; //set last one to NULL
 	}
 
@@ -96,14 +96,14 @@ void DFS_print(nd * curr_node,nd * nodeArray[]){
 	}
 }
 
-void printCycle(int childID,int parentID, int parentArray[]) 
+void printCycle(int childID,int parentID, int parentArray[])
 {
 	int c=childID;
 	while (c != parentID && c!=-1)
 	{
 		give(c);gives("->");
 		c = parentArray[c-1];
-	} 
+	}
 	give(parentID);gives("->");
 	give(childID);
 	gives("\n");
@@ -128,10 +128,8 @@ int countCycles(int cycleHead[],nd * curr_node,nd * nodeArray[],int parentArray[
 			int parent = parentArray[curr_node->id-1];
 			if( parent!= near_node->id && parent!=-1){
 				cycleCount++;
-
 			//print path
 				printCycle(curr_node->id,near_node->id,parentArray);
-
 			}
 		}
 		head=head->next;
@@ -144,7 +142,7 @@ int countCycles(int cycleHead[],nd * curr_node,nd * nodeArray[],int parentArray[
 void DFS_visit(nd * curr_node,nd * nodeArray[]){
 	curr_node->visit++;
 
-	adjNode * head = curr_node->adjHead; //head points to current node's adj list
+	adjNode * head = curr_node->adjHead;//head points to current node's adj list
 	//go thru the adjList of current node
 	while(head!=NULL){
 		nd * near_node = nodeArray[head->id-1];
@@ -158,8 +156,6 @@ void DFS_visit(nd * curr_node,nd * nodeArray[]){
 	//at this point all neighbours are explored.
 	curr_node->visit++;
 }
-
-
 void checkCycles(nd* nodeArray[],int N,int parentArray[]){
 	int  v=0,j,k=0;
 	int cycleHead[N]; //to store ids of heads of new cycle paths.
@@ -183,7 +179,7 @@ void connectedPaths(nd* nodeArray[],int N){
 	int v=0,j;
 	nd* paths[N]; //to store heads of new connected paths.
 	resetVisits(nodeArray,N);
-	
+
 	for (j=0;j<N;j++){
 		nd* curr_node = nodeArray[j];
 		if(curr_node->visit==0){
@@ -192,7 +188,7 @@ void connectedPaths(nd* nodeArray[],int N){
 		}
 	}
 
-	gives("No of connected components :");give(v);gives("\n");gives("\n");
+	gives("\n");gives("No of connected components :");give(v);gives("\n");
 	for (j=0;j<v;j++){
 		resetVisits(nodeArray,N);
 		gives("connected components ");give(j+1);gives(":\t");
@@ -213,14 +209,16 @@ int main ( int argc, char *argv[]){
 
 	for (j=0;j<N;j++)
 		nodeArray[j] = createNode(j+1); //initialize the nodes of the graph
-	
+
 	int a,b;
+
+	gives("Input read from file: \n");
 	for (i=0;i<E;i++){
 		fscanf(fp,"%d, %d",&a,&b);
-		if(a<=N && b<=N){
+		if(a<=N && b<=N && a*b>0){
 			give(a);
 			give(b);
-			gives("\n");
+			gives("\t");
 			makeEdge(nodeArray[a-1],b);
 			makeEdge(nodeArray[b-1],a);
 		}
@@ -232,10 +230,10 @@ int main ( int argc, char *argv[]){
 	fclose(fp);
 
 
+	gives("\nRecorded edges: \n");
 //print given data
 	for (j=0;j<N;j++){
 		adjNode * head = nodeArray[j]->adjHead;
-		E = nodeArray[j]->E;
 		gives("Node");give(nodeArray[j]->id);gives("has edges with:\t ");
 		while(head!=NULL){
 			give(head->id);
