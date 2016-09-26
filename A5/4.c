@@ -1,18 +1,8 @@
-    //Name- Deshmukh Udayraj
+//Name- Deshmukh Udayraj
 //Roll - 150101021
 
 #include<stdio.h>
 #include<stdlib.h>
-#include<math.h>
-#include<time.h>
-
-void swap(int*a,int*b)
-{
-	int t=*b;
-	*b=*a;
-	*a=t;
-}
-
 //Below are some functions for convenience.
 void give(int a)
 {
@@ -23,14 +13,6 @@ void gives(char* a)
 	printf("%s",a);
 }
 void giveA(int* A,int e){	int t=0,s=0;	for(t=s;t<e;t++)give(A[t]);gives("\n");}
-
-int take()
-{
-	int n;
-	scanf("%d",&n);
-	return n;
-}
-
 typedef struct adjNode  {
 	int id;
 	struct adjNode * next;
