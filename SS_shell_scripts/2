@@ -1,0 +1,31 @@
+echo -n write the name of the participant:
+touch output.txt
+read name
+if grep $name output.txt >> /dev/null
+then
+	 echo dublicate entry
+	exit
+fi
+echo write the runs 
+read a b c d e f
+echo type the cut of time
+read y
+average=$(echo "scale=1;$a + $b"|bc)
+average=$(echo "scale=1;$average + $c"|bc)
+average=$(echo "scale=1;$average + $d"|bc)
+average=$(echo "scale=1;$average + $e"|bc)
+average=$(echo "scale=1;$average / 5"|bc)
+echo $average
+temp=`echo "$average<$y" | bc`
+if test $temp
+then
+	echo "Close, but you did not make it."
+elif test $average = $y
+then echo "Welcome to the team."
+else
+	echo "Welcome to the team."
+fi
+echo "$name    		:	$a  $b  $c  $d  $e 	:  $average"	>>output.txt
+
+
+ 

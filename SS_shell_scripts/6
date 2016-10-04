@@ -1,0 +1,44 @@
+#!/bin/sh
+subjects="Most basic Commands,Basic Linux Commands,Advanced Linux Commands,Basic VIM Commands.Use Vim no vi,Advanced VIM";
+tabs="\t\t\t ,\t\t\t,\t\t  , \t   ,\t\t\t\t,\t\t\t\t\t";
+tabs2="\t\t\t,\t\t\t,\t\t\t,\t\t\t,\t\t\t  ,\t\t\t";
+
+marks="1 2 3 1 3"
+starts="3 17 27 37 50"
+ends="16 26 36 49 58"
+
+groups=`echo {1..8}`
+subjNos=`echo {1..5}`
+
+	for stud in $groups # 8 TIMES
+	do
+		line=`cat marks.csv | head -$stud | tail -1`
+		group=`echo $line| awk -F# '{print $1;}'`
+		roll=`echo $line| awk -F# '{print $2;}'`
+		echo;echo $group Roll $roll;	echo;
+		echo -e "Part \t\t\t\t Correct Answers \t\t Marks Obtained";echo ;
+		total1=0
+		total2=0
+		for subjNo in $subjNos # 5 TIMES
+		do
+			start=`echo $starts | cut -d' ' -f$subjNo`
+			end=`echo $ends | cut -d' ' -f$subjNo`
+			subj=`echo $subjects | cut -d',' -f$subjNo`
+			tab=`echo $tabs | cut -d',' -f$subjNo`
+			tab2=`echo $tabs2 | cut -d',' -f$subjNo`
+			subjMarks=`echo $marks | cut -d' ' -f$subjNo`
+
+			CorrectAnswers=`echo $line | awk -F# '{sum=0; for ( i='"${start}"'; i<='"${end}"'; i++ )sum+=$i;print sum;}'`
+
+			MarksObtained=`expr $subjMarks \* $CorrectAnswers `
+			
+			echo -e "$subj" $tab " $CorrectAnswers " $tab2 " $MarksObtained";echo ;
+
+			((total1+=$CorrectAnswers))
+			((total2+=$MarksObtained))
+			
+		done
+			tab=`echo $tabs | cut -d',' -f6`
+			tab2=`echo $tabs2 | cut -d',' -f6`
+			echo -e "Total" $tab " $total1 " $tab2 " $total2";echo ;
+	done
