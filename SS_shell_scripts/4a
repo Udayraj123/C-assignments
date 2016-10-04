@@ -1,0 +1,16 @@
+#!/bin/bash
+
+function move(){
+	if [ $1 -eq 1 ]; then
+		echo "Move Disk $1 from $2 to $3";
+	else
+		move $[$1-1] $2 $4 $3;
+		echo "Move Disk $1 from $2 to $3";
+		move $[$1-1] $4 $3 $2;
+	fi
+}
+
+echo -e "Enter the Value of n i.e. the number of Disks on the Source";
+read n;
+move $n "Source" "Destination" "Temporary";
+

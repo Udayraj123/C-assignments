@@ -1,0 +1,28 @@
+	echo -n write the directory name:
+	read directory
+
+	if test ! -d $directory 
+		then
+		echo error
+		exit	
+	fi
+
+	list=`find $directory -maxdepth 1 -type f | awk -F/ '{print $2;}' | tr ' ' '____'`
+
+	max=0
+for i in $list
+	do 
+
+	len=`echo "$i" | wc -c`
+
+	if [ $len -gt $max ] 
+		then 
+		(( max=$len ))
+		final=`echo $i | tr '____' ' '`
+	fi
+
+done
+
+echo
+echo "$final"
+

@@ -1,0 +1,10 @@
+echo -e "Enter two values: \c"
+read a b
+echo -e "operand(+, -, / ,*): \c "
+read c
+if [ "$c" == "*" ]
+then
+echo "Output:$a * $b=`expr $a \* $b`"
+else
+echo "Output:$a $c $b=`expr $a $c $b`"
+fi
