@@ -133,9 +133,7 @@ void showMenu(int N,nd* nodeArray[],int size[]){
 	int choice;
 	gives("\nEnter your choice : \n1.find_set\n2.union_set\n0.exit\n"); choice=take();
 	gives("\n");
-	
 	switch(choice){
-
 		case 1:
 		gives("Enter x :");int x=take();
 		nd * xObj = getObject(x,N,nodeArray);
@@ -147,8 +145,6 @@ void showMenu(int N,nd* nodeArray[],int size[]){
 			gives("Invalid value - "); give(x);gives("\n");
 		}
 		break;
-		
-
 		case 2:
 		gives("Enter x1 & x2 :");int x1=take(),x2=take();
 		nd* xObj1 = getObject(x1,N,nodeArray);
@@ -162,7 +158,6 @@ void showMenu(int N,nd* nodeArray[],int size[]){
 		}
 		printSets(N,nodeArray);
 		break;
-
 		case 0:
 		gives("Exiting the program.\n"); return;
 		break;
@@ -175,21 +170,43 @@ void showMenu(int N,nd* nodeArray[],int size[]){
 }
 
 int main ( int argc, char *argv[]){
-	int i,j,N=4;
+	int i,j,N=4,fileInput=0;
+	FILE * fp;
 	//can take file from command line argument too if provided
-	gives("\t\t Q1: Union by Weighted Union Heuristics \n\n");
-	gives("Please enter Number of elements N - ");
-	N=take();
-	//initialize
-	nd** nodeArray = (nd**)malloc(N * sizeof(nd)); 
-	int size[N];
-	takeManual(N,nodeArray,size);
+	if(argc>2)fp=fopen(argv[1],"r");
+	else {
+		gives("File input or Manual Input ? ( 1/0 ) : "); fileInput=take();
+		if(fileInput){
+			gives("Opening local input file- sets.txt\n");
+			fp=fopen("sets.txt","r");
+		}
+		else {
+			gives("Please enter N - ");
+			N=take();
+		}
+	}
+	if(fileInput)fscanf(fp,"%d",&N); //take first line to N //this is for command line file too.
+
+	nd** nodeArray = (nd**)malloc(N * sizeof(nd)); //initialize
+	int a, size[N];
+
+	if(!fileInput)takeManual(N,nodeArray,size);
+	else{
+		gives("Input read from file: \n");
+		for (i=0;i<N;i++){
+			fscanf(fp,"%d",&a);
+			give(a); gives("\t");
+			nodeArray[i] = make_set(a,i); //initialize the nodes of the graph
+			size[i]=1; // initial size = 1
+		}
+		fclose(fp);
+	}
 
 //print given data
 	gives("\nRecorded sets: \n");
 	printSets(N,nodeArray);
 
-// Start the menu based navigation-
+	// Start menu based navigation-
 	showMenu(N,nodeArray,size);
 
 	return 0;

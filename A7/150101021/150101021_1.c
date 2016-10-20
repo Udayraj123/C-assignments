@@ -1,3 +1,6 @@
+//Name - Udayraj Deshmukh
+//Roll - 150101021
+
 #include<stdio.h>
 #include<stdlib.h>
 
@@ -130,10 +133,11 @@ nd* getObject(int x,int N,nd* nodeArray[]){
 }
 
 void showMenu(int N,nd* nodeArray[],int size[]){
+	//the Menu Interface for choosing between find set & union set
 	int choice;
 	gives("\nEnter your choice : \n1.find_set\n2.union_set\n0.exit\n"); choice=take();
 	gives("\n");
-	
+
 	switch(choice){
 
 		case 1:

@@ -31,19 +31,17 @@ nd* make_set(int val){
 	return newNode;
 }
 
-//follows path compression method-
 nd* find_set(nd* x){
 	if(x != x->parent)
 		x->parent = find_set( x->parent ); //path compression
 	return x->parent;
 }
 
-
-// follows Union by rank method -
 nd * union_set(nd* x1, nd* x2){
 	nd* s1=find_set(x1);
 	nd* s2=find_set(x2);
 	if(s1==s2)return s1; //no union if from same set.
+
 	int r1=s1->rank, r2=s2->rank;
 	if(r1 > r2){
 		//make larger ranked set the parent of smaller ranked set
@@ -103,7 +101,8 @@ void takeManual(int N,nd* nodeArray[]){
 	gives("Enter values of elements one by one : \n");
 	for (i=0;i<N;i++){
 		a=take();
-		nodeArray[i] = make_set(a); //initialize the nodes of the set
+		//update final one at end
+		nodeArray[i] = make_set(a); //initialize the nodes of the graph
 	}
 }
 
@@ -119,15 +118,13 @@ nd* getObject(int x,int N,nd* nodeArray[]){
 
 void showMenu(int N,nd* nodeArray[]){
 	int choice;
-	gives("\nEnter your choice : \n 1.find_set\n 2.union_set\n 0.exit\n"); choice=take();
+	gives("\nEnter your choice : \n1.find_set\n2.union_set\n0.exit\n"); choice=take();
 	gives("\n");
 	switch(choice){
-
 		case 1:
 		gives("Enter x :");int x=take();
 		nd * xObj = getObject(x,N,nodeArray);
 		if(xObj!=NULL){
-			//output the representative of x
 			gives("Set representative of x is : \t");
 			give( find_set(xObj)->val );
 		}
@@ -135,8 +132,6 @@ void showMenu(int N,nd* nodeArray[]){
 			gives("Invalid value - "); give(x);gives("\n");
 		}
 		break;
-
-
 		case 2:
 		gives("Enter x1 & x2 :");
 		int x1=take(),x2=take();
@@ -149,11 +144,8 @@ void showMenu(int N,nd* nodeArray[]){
 		else {
 			gives("Invalid values - "); give(x1); give(x2);gives("\n");
 		}
-		//output the disjoint sets- 
 		printSets(N,nodeArray);
 		break;
-		
-
 		case 0:
 		gives("Exiting the program.\n"); return;
 		break;
@@ -166,20 +158,40 @@ void showMenu(int N,nd* nodeArray[]){
 }
 
 int main ( int argc, char *argv[]){
-	int i,j,N=8;
-	gives("\t\t Q2: Union by Rank & Path Compression \n");
-	gives("Please enter Number of elements N - ");
-	N=take();
-	//initialize
-	nd** nodeArray = (nd**)malloc(N * sizeof(nd)); 
+	int i,j,N=4,fileInput=0;
+	FILE * fp;
+	//can take file from command line argument too if provided
+	if(argc>2)fp=fopen(argv[1],"r");
+	else {
+		gives("File input or Manual Input ? ( 1/0 ) : "); fileInput=take();
+		if(fileInput){
+			gives("Opening local input file- sets.txt\n");
+			fp=fopen("sets.txt","r");
+		}
+		else {
+			gives("Please enter N - ");
+			N=take();
+		}
+	}
+	if(fileInput)fscanf(fp,"%d",&N); //take first line to N //this is for command line file too.
 	
-	//take user input
-	takeManual(N,nodeArray); 
+	nd** nodeArray = (nd**)malloc(N * sizeof(nd)); //initialize
+	int a;
 
-	//print given data
+	if(!fileInput)takeManual(N,nodeArray);
+	else{
+		gives("Input read from file: \n");
+		for (i=0;i<N;i++){
+			fscanf(fp,"%d",&a);
+			give(a); gives("\t");
+			nodeArray[i] = make_set(a); //initialize the nodes of the graph
+		}
+		fclose(fp);
+	}
+
+//print given data
 	gives("\nRecorded sets: \n");
 	printSets(N,nodeArray);
-	
 	// Start menu based navigation-
 	showMenu(N,nodeArray);
 
