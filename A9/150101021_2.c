@@ -67,33 +67,9 @@ nd* insert(int key,nd* min){
 
 nd* createRandList(int size){
 	nd* start=createNode(rdm());
-
 	while(--size)
 		start= insert(rdm(),start);
-
 	return start;
-}
-
-
-void print(nd* min){
-	gives("[");
-	give(min->key); give(min->degree); give(min->mark);//[key,degree,mark]
-	if(min->parent)give(min->parent->key); //parent
-	else give(-1);
-	gives("],");
-}
-
-void printList(nd* min){
-	if(min==NULL){
-		gives("empty List !\n");
-		return;
-	}
-	nd* start=min;
-	do{
-		print(start);
-		start=start->right;
-	}while(start!=min);
-	gives("\n");
 }
 
 int countList(nd* min){
@@ -141,49 +117,23 @@ nd * getMin(nd* head){
 	return min;
 }
 
-//for lists
-void createChild(nd* min1,nd* min2){
-	if(min1==NULL || min2==NULL)return;
-	nd* start=min2;
-	do{
-		start->parent=min1; //set each's parent as min(L1)
-		start=start->right;
-	}while(start!=min2);
-
-	nd* child= min1->child;// could be null,but Concate handles it.
-	child = concateLists(child,min2);
-	min1->child=child;
-
-	int size2 = countList(min2);
-	min1->degree += size2;
+nd* delete_node(nd* min){
+	//also returns new min
+	if(min==NULL || min->left==min)return NULL;
+	(min->left)->right = min->right;
+	(min->right)->left = min->left;
+	return getMin(min->right);
 }
 
-
 void isolate(nd* y){
-	if(y==NULL)
-		return;
-give("isolate");give(y->key);
 //requires atleast two elements
+	if(y==NULL) return;
 	nd* R = y->right;
 	nd* L = y->left;
 	L->right = R;
 	R->left = L;
 	y->right=y;
 	y->left=y;
-}
-nd* getNode(nd* min, int key){
-	nd* y=NULL;
-	if(min!=NULL){
-		nd* start=min;
-		do{
-			if(start->key==key){
-				y=start;
-				break;
-			}
-			start=start->right;
-		}while(start!=min);
-	}
-	return y;
 }
 
 void goodPrint(nd* root,int depth, int last){
@@ -221,7 +171,6 @@ void goodPrint(nd* root,int depth, int last){
 	}
 }
 
-
 void printHeap(nd* min,int printFlag){
 	if(printFlag){
 		if(min==NULL)
@@ -234,12 +183,6 @@ void printHeap(nd* min,int printFlag){
 	}
 }
 
-nd* delete_node(nd* min){
-	if(min->left==min)return NULL;
-	(min->left)->right = min->right;
-	(min->right)->left = min->left;
-	return min;
-}
 
 void putUp(nd* child){
 	if(child==NULL)return;
@@ -267,6 +210,21 @@ void reset(nd* aux[],int N){
 	while(N--)aux[N]=NULL;
 }
 
+nd* heap_link(nd* x,nd* y){
+	if(y==NULL ||x==NULL || y->key < x->key){
+		gives("wrong link\n");
+		return y; //y could be the min that has pointer to children
+	}
+	isolate(y);
+	y->parent = x;
+	nd* child = x->child;
+	child = concateLists(y,child);
+	child= getMin(child);
+	x->child = child;
+	x->degree++;
+	y->mark = 0;
+	return x;
+}
 int checkConflicts(nd* head,int maxDeg){
 	int d,degrees[maxDeg];
 	for(d=0;d<maxDeg;d++)degrees[d]=0; //reset
@@ -283,65 +241,36 @@ int checkConflicts(nd* head,int maxDeg){
 	return 0;
 }
 
-nd* heap_link(nd* x,nd* y){
-	if(y==NULL ||x==NULL || y->key < x->key){
-gives("wrong link\n");
-	return y; //y could be the min that has pointer to children
-}
-	isolate(y);
-	y->parent = x;
-	nd* child = x->child;
-	// gives("X child : ");if(child)give(child->key);
-	child = concateLists(y,child);
-	child=getMin(child);
-	x->child = child;
-	// gives("X child : ");if(child)give(child->key);
-	x->degree++;
-	y->mark = 0;
-	return x;
-}
 
 nd *extract_min(nd* min){
 	nd* newMin=min;
-	if(min==NULL || min->right==min){
-		min=NULL;
+	if(min==NULL)
 		return NULL;
-	}
-// Step 1  :
-	//make their parents NULL
+	if(min->right==min && min->child==NULL)return NULL;
+// Step 1  : //make their parents NULL
 	putUp(min->child);
-// add its children besides the min // Concate the child to parent's child
-	concateLists(min,min->child);
-	newMin=min->right;
-	delete_node(min);
-	newMin=getMin(newMin);
+	// add its children besides the min // Concate the child to parent's child
+	concateLists(min,min->child);//can be inserted anywhere
+	newMin=delete_node(min);
 
 //Step 2 : CONSOLIDATE
-	//maintain auxillary array of pointers int * a[];
-	int maxDeg= getMaxDeg(newMin) + 1;//countList(newMin); // This Has to change
-
+	int maxDeg= countList(newMin) + 1;// upper limit
 	nd* aux[maxDeg];
+	//maintain auxillary array of pointers int * a[];
 	reset(aux,maxDeg);
 
 	nd* head=newMin;
-	int d,firstloop=1;
+	int d;
 	nd* x,*y;
 
-	return newMin;
 	while (checkConflicts(head,maxDeg) ){
 		d=head->degree;
 		if(aux[d]!=NULL && aux[d]!=head){
-			//conflict
+			//if conflict
 			x=head; y=aux[d];
 			if(y->key < x->key){
 				head=head->right; // if x is vanishing from root list, move on
-				//made sure newMin always stays in root list
-
 				heap_link(y,x);//increases degree of parent by one
-				
-				// gives("\tDEBUG : checkConflicts : ");give(checkConflicts(head,maxDeg));
-				printHeap(head,1);
-
 			}
 			else{
 				heap_link(x,y);
@@ -360,63 +289,81 @@ return newMin;
 }
 
 
-
 void showMenu(nd* start){
 	static int printFlag=1;
-	int choice;
-	int N,key;
-	gives("\nEnter your choice : \n 1.createHeap \n 2.Insert \n 3.extract_min\n4.createRandList\n 0.Quit\n");
-
-	choice=take();
+	char choice;
+	int N,key,shown=0;
+	if(printFlag){
+		gives("\nEnter your choice : \n S.Showheap \n c.Createheap\n r.createRandList\n i.Insert \n e.Extract Min \n +.Print On \n -.Print Off \n q.Quit\n");
+	}
+	else gives("\n");
+	scanf("%c",&choice);
 	switch(choice){
-		case 1:
-		start=NULL;
+		case '-':
+		gives("print flag off");
+		printFlag=0;
 		break;
 
-		case 9:
-		gives("link last 2: ");
-		start = heap_link(start->left,(start->right)->right);
+		case '+':
+		gives("print flag on");
+		printFlag=1;
 		break;
 
-		case 2:
+		case 'S':
+		//print
+		printHeap(start,1);
+		shown=1;
+		break;
+
+		case 'c':
+		//create empty heap
+		gives("Created ");
+		start = NULL;
+		break;
+
+		case 'i':
 		//insert
 		gives("Enter key: "); key = take();
 		start = insert(key,start);
 		break;
 
-		case 3:
-		gives("Extract Min : ");
+		case 'd':
+		case 'e':
+		//extractmin
+		gives("\tExtract Min : ");
 		if(start != NULL)
 			give(start->key);
-		else gives("No elements remaining !\n");
+		else gives("No elements remaining !");
 		gives("\n");
 		start=extract_min(start); //returns to newMin
 		break;
 
-		case 4:
+		case 'r':
+		case 'R':
 		gives("Enter number of elements N: ");
 		N=take();
 		start = createRandList(N);
 		break;
 
-
-		case 0:
+		case 'q':
 		gives("Quit Program.\n");
-		return;
+		return; //exit for other inputs
 		break;
 
 		default:
-		gives("Please Enter Valid Character First!.\n");
+		gives("Please Enter Valid Character First(no numbers!).\n");
+		gives("if persists, Try Entering a space before input\n");
 		break;
 	}
-
-	gives("\n");
-	printHeap(start,printFlag);
+	// gives("\n");
+	if(!shown)printHeap(start,printFlag);
+	getchar();//to take enter. but may take space
 	showMenu(start);
 }
 int main(){
 	srand(time(NULL));
 	nd* start=NULL;
+	gives("\t\t Assignment 9 : Fibonacci Heap Implementation \n");
 	showMenu(start);
 	return 0;
 }
